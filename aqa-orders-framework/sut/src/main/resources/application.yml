@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: orders-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orders   # the port published by the override file
+    username: orders
+    password: orders
+  kafka:
+    bootstrap-servers: localhost:9092              # the EXTERNAL listener
+  liquibase:
+    enabled: false   # there's no changelog yet; Liquibase would fail at startup looking for one. S2 turns this on
+
+management:
+  endpoint:
+    health:
+      show-details: always   # list each component (db, disk space...) in the response

@@ -1,0 +1,2 @@
+rootProject.name = 'aqa-orders-framework'
+include 'sut', 'autotests'   // each name is a folder with its own build.gradle
