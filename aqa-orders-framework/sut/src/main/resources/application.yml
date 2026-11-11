@@ -8,9 +8,11 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092              # the EXTERNAL listener
   liquibase:
-    enabled: false   # there's no changelog yet; Liquibase would fail at startup looking for one. S2 turns this on
+    enabled: true
 
 management:
   endpoint:
     health:
       show-details: always   # list each component (db, disk space...) in the response
+
+spring.liquibase.contexts: test

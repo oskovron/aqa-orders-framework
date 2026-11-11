@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-orders
+      author: you
+      changes:
+        - createTable:
+            tableName: orders
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true } }
+              - column: { name: customer_id, type: varchar(64), constraints: { nullable: false } }
+              - column: { name: total, type: "numeric(12,2)", constraints: { nullable: false } }
+              - column: { name: status, type: varchar(20), constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamptz, defaultValueComputed: now(), constraints: { nullable: false } }
+  - changeSet:
+      id: 002-seed-reference-orders
+      author: you
+      context: test
+      changes:
+        - insert:
+            tableName: orders
+            columns:
+              - { column: { name: id, value: 00000000-0000-0000-0000-000000000001 } }
+              - { column: { name: customer_id, value: seed-customer-1 } }
+              - { column: { name: total, valueNumeric: 10.00 } }
+              - { column: { name: status, value: NEW } }
+        - insert:
+            tableName: orders
+            columns:
+              - { column: { name: id, value: 00000000-0000-0000-0000-000000000002 } }
+              - { column: { name: customer_id, value: seed-customer-2 } }
+              - { column: { name: total, valueNumeric: 25.50 } }
+              - { column: { name: status, value: PAID } }
