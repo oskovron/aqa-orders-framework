@@ -1,5 +1,7 @@
 package com.example.orders;
 
+import com.example.orders.kafka.OrderCreatedEvent;
+import com.example.orders.kafka.OrderEventPublisher;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,8 +22,12 @@ record Order(UUID id, String customerId, BigDecimal total, String status, Offset
 @RequestMapping("/orders")
 class OrderController {
 	private final JdbcClient jdbc;
+	private final OrderEventPublisher publisher;
 
-	OrderController(JdbcClient jdbc) { this.jdbc = jdbc; }
+	OrderController(JdbcClient jdbc, OrderEventPublisher publisher) {
+		this.jdbc = jdbc;
+        this.publisher = publisher;
+    }
 
 	@PostMapping
 	ResponseEntity<Order> create(@Valid @RequestBody CreateOrderRequest req) {
@@ -33,6 +39,9 @@ class OrderController {
 				.param("customerId", req.customerId())
 				.param("total", req.total())
 				.query(Order.class).single();
+
+		publisher.publishOrderCreated(new OrderCreatedEvent(order.id(), order.status(), order.total()));
+
 		return ResponseEntity.created(URI.create("/orders/" + order.id())).body(order);
 	}
 
