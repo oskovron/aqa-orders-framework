@@ -12,4 +12,9 @@ public class KafkaTopicsConfig {
     NewTopic orderCreatedTopic() {
         return TopicBuilder.name("order.created").partitions(3).replicas(1).build();
     }
+
+    @Bean
+    NewTopic paymentCompletedTopic() {
+        return TopicBuilder.name(PaymentCompletedListener.TOPIC).partitions(3).replicas(1).build();
+    }
 }

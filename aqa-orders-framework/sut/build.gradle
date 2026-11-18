@@ -34,6 +34,16 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// Fixed jar name, so sut/Dockerfile can COPY it without a version in the path
+tasks.named('bootJar') {
+	archiveFileName = 'orders-service.jar'
+}
+
+// Don't build the extra "-plain" jar; only the runnable boot jar is needed
+tasks.named('jar') {
+	enabled = false
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }

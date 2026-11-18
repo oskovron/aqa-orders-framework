@@ -33,3 +33,24 @@ services:
       timeout: 10s
       retries: 10
       start_period: 15s                # failures in the first 15 s don't count
+  sut:
+    build: ./sut                       # sut/Dockerfile; needs ./gradlew :sut:bootJar first
+    image: orders-service:local
+    environment:
+      # env vars override application.yml (Spring relaxed binding: SPRING_X_Y = spring.x.y)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orders   # service name, container port
+      SPRING_DATASOURCE_USERNAME: orders
+      SPRING_DATASOURCE_PASSWORD: orders
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:19092                     # INTERNAL listener, not localhost:9092
+    depends_on:
+      postgres:
+        condition: service_healthy     # start only when pg_isready passes
+      kafka:
+        condition: service_healthy     # start only when the broker answers
+    healthcheck:
+      # curl -f fails on HTTP 503, which actuator returns when status is DOWN
+      test: [ "CMD-SHELL", "curl -fs http://localhost:8080/actuator/health > /dev/null || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s                # Spring Boot + Liquibase startup

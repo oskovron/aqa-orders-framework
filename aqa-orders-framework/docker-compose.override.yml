@@ -5,3 +5,6 @@ services:
   kafka:
     ports:
       - "9092:9092"
+  sut:
+    ports:
+      - "8080:8080"

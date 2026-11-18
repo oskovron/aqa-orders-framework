@@ -20,3 +20,6 @@ management:
       show-details: always   # list each component (db, disk space...) in the response
 
 spring.liquibase.contexts: test
+
+#server:
+#  port: 8081
