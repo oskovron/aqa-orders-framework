@@ -3,7 +3,47 @@ plugins {
 }
 
 java {
-    toolchain { languageVersion = JavaLanguageVersion.of(21) }
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // BOMs pin versions for the libraries below
+    testImplementation platform('org.junit:junit-bom:6.1.2')
+    testImplementation platform('org.testcontainers:testcontainers-bom:2.0.5')
+
+    // JUnit (Jupiter API, same as JUnit 5)
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Testcontainers core (contains ComposeContainer)
+    testImplementation 'org.testcontainers:testcontainers'
+
+    // API calls and assertions
+    testImplementation 'io.rest-assured:rest-assured:6.0.0'
+    testImplementation 'org.assertj:assertj-core:3.27.3'
+    testImplementation 'org.awaitility:awaitility:4.3.0'
+
+    // Logging backend, so Testcontainers' startup log is visible
+    testRuntimeOnly 'ch.qos.logback:logback-classic:1.5.18'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+
+    // sut/Dockerfile copies the jar, so the jar must exist before compose builds the image
+    dependsOn ':sut:bootJar'
+
+    // Absolute path to the compose file, independent of the working directory
+    systemProperty 'compose.file', rootProject.file('docker-compose.yml').absolutePath
+
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat 'full'
+    }
+}
