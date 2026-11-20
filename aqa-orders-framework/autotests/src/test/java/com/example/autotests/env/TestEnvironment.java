@@ -1,11 +1,12 @@
 package com.example.autotests.env;
 
 import java.io.File;
-import java.time.Duration;
 
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
+
+import com.example.autotests.config.TestConfig;
 
 /**
  * Starts docker-compose.yml once per test JVM (singleton) and gives tests the SUT address.
@@ -28,6 +29,8 @@ public final class TestEnvironment {
 
     // kept open for the whole run on purpose; Ryuk cleans up
     private static ComposeContainer start() {
+        TestConfig config = TestConfig.get();   // S6: fails fast here if the env config is broken
+
         File composeFile = new File(System.getProperty("compose.file", "../docker-compose.yml"));
         if (!composeFile.isFile()) {
             throw new IllegalStateException("Compose file not found: " + composeFile.getAbsolutePath());
@@ -39,7 +42,7 @@ public final class TestEnvironment {
                 .withExposedService(SUT_SERVICE, SUT_PORT,
                         Wait.forHttp("/actuator/health")
                                 .forStatusCode(200)
-                                .withStartupTimeout(Duration.ofMinutes(3)));
+                                .withStartupTimeout(config.sutStartupTimeout()));   // S6: per env
 
         compose.start();
         return compose;

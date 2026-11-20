@@ -29,6 +29,9 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.27.3'
     testImplementation 'org.awaitility:awaitility:4.3.0'
 
+    // S6: JSON <-> records. Same Jackson 3 version as the SUT (Spring Boot 4.1.2)
+    testImplementation 'tools.jackson.core:jackson-databind:3.1.7'
+
     // Logging backend, so Testcontainers' startup log is visible
     testRuntimeOnly 'ch.qos.logback:logback-classic:1.5.18'
 }
@@ -41,6 +44,9 @@ tasks.named('test') {
 
     // Absolute path to the compose file, independent of the working directory
     systemProperty 'compose.file', rootProject.file('docker-compose.yml').absolutePath
+
+    // S6: pass -Denv=local|ci from the Gradle command line into the test JVM
+    systemProperty 'env', providers.systemProperty('env').getOrElse('local')
 
     testLogging {
         events 'passed', 'skipped', 'failed'
