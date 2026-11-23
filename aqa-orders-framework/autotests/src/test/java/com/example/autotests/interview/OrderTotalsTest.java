@@ -20,7 +20,6 @@ public class OrderTotalsTest {
     record Order(String id, String status, BigDecimal total) {
     }
 
-
     static final String JSON = """
             [
               {"id": "o1", "status": "NEW",       "total": 10.50},
@@ -70,16 +69,11 @@ public class OrderTotalsTest {
 
     }
 
-
-
-
-    // TODO 1: parse JSON into a List<Order> with Jackson 3
     static List<Order> parse(String json) {
         return MAPPER.readValue(json, new TypeReference<>() {
         });
     }
 
-    // TODO 2: group by status, sum totals, using streams
     static Map<String, BigDecimal> totalsByStatus(List<Order> orders) {
         return orders.stream()
                 .collect(Collectors.groupingBy(Order::status, Collectors.reducing(BigDecimal.ZERO, Order::total, BigDecimal::add)));
@@ -94,6 +88,4 @@ public class OrderTotalsTest {
         assertThat(result.get("PAID")).isEqualByComparingTo("20.99");
         assertThat(result.get("CANCELLED")).isEqualByComparingTo("7.25");
     }
-
-
 }
